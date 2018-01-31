@@ -16,6 +16,8 @@ local wibox         = require("wibox")
 local beautiful     = require("beautiful")
 local naughty       = require("naughty")
 local lain          = require("lain")
+-- Multiheads
+local xrandr        = require("xrandr")
 --local menubar       = require("menubar")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
@@ -73,15 +75,15 @@ local themes = {
     "vertex",          -- 10
 }
 
-local chosen_theme = themes[5]
+local chosen_theme = themes[2]
 local modkey       = "Mod4"
 local altkey       = "Mod1"
-local terminal     = "xterm"
-local editor       = os.getenv("EDITOR") or "nano"
-local gui_editor   = "gvim"
-local browser      = "firefox"
-local guieditor    = "atom"
 local scrlocker    = "xlock"
+local editor       = os.getenv("EDITOR") or "vim"
+local terminal     = "terminator"
+local browser      = "firefox-developer-edition"
+local guieditor    = "gvim"
+local gui_editor   = "subl3"
 
 awful.util.terminal = terminal
 awful.util.tagnames = { "1", "2", "3", "4", "5" }
@@ -226,11 +228,11 @@ root.buttons(my_table.join(
 globalkeys = my_table.join(
     -- Take a screenshot
     -- https://github.com/lcpz/dots/blob/master/bin/screenshot
-    awful.key({ altkey }, "p", function() os.execute("screenshot") end,
+    awful.key({ altkey }, "p", function() os.execute("import -silent -window root \"$HOME/Pictures/screenshot-$(date +'%Y%m%d.%H%M%S').png\"") end,
               {description = "take a screenshot", group = "hotkeys"}),
 
     -- X screen locker
-    awful.key({ altkey, "Control" }, "l", function () os.execute(scrlocker) end,
+    awful.key({ modkey }, "l", function () os.execute(scrlocker) end,
               {description = "lock screen", group = "hotkeys"}),
 
     -- Hotkeys
@@ -241,28 +243,20 @@ globalkeys = my_table.join(
               {description = "view previous", group = "tag"}),
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext,
               {description = "view next", group = "tag"}),
-    awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
+    awful.key({ modkey,           }, "'", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
 
     -- Non-empty tag browsing
-    awful.key({ altkey }, "Left", function () lain.util.tag_view_nonempty(-1) end,
+    awful.key({ modkey }, "Tab", function () lain.util.tag_view_nonempty(1) end,
               {description = "view  previous nonempty", group = "tag"}),
-    awful.key({ altkey }, "Right", function () lain.util.tag_view_nonempty(1) end,
+    awful.key({ modkey, "Shift" }, "Tab", function () lain.util.tag_view_nonempty(-1) end,
               {description = "view  previous nonempty", group = "tag"}),
 
     -- Default client focus
-    awful.key({ altkey,           }, "j",
-        function ()
-            awful.client.focus.byidx( 1)
-        end,
-        {description = "focus next by index", group = "client"}
-    ),
-    awful.key({ altkey,           }, "k",
-        function ()
-            awful.client.focus.byidx(-1)
-        end,
-        {description = "focus previous by index", group = "client"}
-    ),
+    awful.key({ altkey ,       }, "Tab", function () awful.client.focus.byidx( 1) end,
+              {description = "focus next by index", group = "client"}),
+    awful.key({ altkey, "Shit" }, "k", function () awful.client.focus.byidx(-1) end,
+              {description = "focus previous by index", group = "client"}),
 
     -- By direction client focus
     awful.key({ modkey }, "j",
@@ -303,7 +297,7 @@ globalkeys = my_table.join(
               {description = "focus the previous screen", group = "screen"}),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto,
               {description = "jump to urgent client", group = "client"}),
-    awful.key({ modkey,           }, "Tab",
+    awful.key({ altkey,           }, "'",
         function ()
             awful.client.focus.history.previous()
             if client.focus then
@@ -342,7 +336,7 @@ globalkeys = my_table.join(
               {description = "delete tag", group = "tag"}),
 
     -- Standard program
-    awful.key({ modkey,           }, "Return", function () awful.spawn(terminal) end,
+    awful.key({ altkey, "Control" }, "t", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
               {description = "reload awesome", group = "awesome"}),
@@ -430,28 +424,29 @@ globalkeys = my_table.join(
     -- MPD control
     awful.key({ altkey, "Control" }, "Up",
         function ()
-            awful.spawn.with_shell("mpc toggle")
+            awful.spawn.with_shell("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Play > /dev/null")
             beautiful.mpd.update()
         end,
-        {description = "mpc toggle", group = "widgets"}),
+        {description = "spotify play", group = "widgets"}),
     awful.key({ altkey, "Control" }, "Down",
         function ()
-            awful.spawn.with_shell("mpc stop")
+            awful.spawn.with_shell("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Stop > /dev/null")
             beautiful.mpd.update()
         end,
-        {description = "mpc stop", group = "widgets"}),
+        {description = "spotify stop", group = "widgets"}),
     awful.key({ altkey, "Control" }, "Left",
         function ()
-            awful.spawn.with_shell("mpc prev")
+            awful.spawn.with_shell("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Previous > /dev/null")
             beautiful.mpd.update()
         end,
-        {description = "mpc prev", group = "widgets"}),
+        {description = "spotify prev", group = "widgets"}),
     awful.key({ altkey, "Control" }, "Right",
         function ()
-            awful.spawn.with_shell("mpc next")
+            awful.spawn.with_shell("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next > /dev/null")
             beautiful.mpd.update()
         end,
-        {description = "mpc next", group = "widgets"}),
+        {description = "spotify next", group = "widgets"}),
+
     awful.key({ altkey }, "0",
         function ()
             local common = { text = "MPD widget ", position = "top_middle", timeout = 2 }
@@ -466,14 +461,16 @@ globalkeys = my_table.join(
         end,
         {description = "mpc on/off", group = "widgets"}),
 
+--[[
     -- Copy primary to clipboard (terminals to gtk)
     awful.key({ modkey }, "c", function () awful.spawn("xsel | xsel -i -b") end,
               {description = "copy terminal to gtk", group = "hotkeys"}),
     -- Copy clipboard to primary (gtk to terminals)
     awful.key({ modkey }, "v", function () awful.spawn("xsel -b | xsel") end,
               {description = "copy gtk to terminal", group = "hotkeys"}),
+]]
 
-    -- User programs
+    -- User programsfont
     awful.key({ modkey }, "q", function () awful.spawn(browser) end,
               {description = "run browser", group = "launcher"}),
     awful.key({ modkey }, "a", function () awful.spawn(guieditor) end,
@@ -509,6 +506,9 @@ globalkeys = my_table.join(
 )
 
 clientkeys = my_table.join(
+    awful.key({ modkey }, "p", function () xrandr.xrandr() end,
+              {description = "xrand screen change", group = "client"}),
+
     awful.key({ altkey, "Shift"   }, "m",      lain.util.magnify_client,
               {description = "magnify client", group = "client"}),
     awful.key({ modkey,           }, "f",
