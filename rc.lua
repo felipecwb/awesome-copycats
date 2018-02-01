@@ -57,12 +57,11 @@ local function run_once(cmd_arr)
     end
 end
 
-run_once({ "unclutter -root" }) -- entries must be comma-separated
+-- run_once({ "unclutter -root" }) -- entries must be comma-separated
 run_once({ "albert -k \"Alt+Space\"" }) -- entries must be comma-separated
 -- }}}
 
 -- {{{ Variable definitions
-
 local themes = {
     "blackburn",       -- 1
     "copland",         -- 2
@@ -181,8 +180,8 @@ beautiful.init(theme_path)
 -- {{{ Menu
 local myawesomemenu = {
     { "hotkeys", function() return false, hotkeys_popup.show_help end },
-    { "manual", terminal .. " -e man awesome" },
-    { "edit config", string.format("%s -e %s %s", terminal, editor, awesome.conffile) },
+    { "manual", "xterm -e man awesome" },
+    { "edit config", string.format("%s %s", guieditor, awesome.conffile) },
     { "restart", awesome.restart },
     { "quit", function() awesome.quit() end }
 }
@@ -339,10 +338,6 @@ globalkeys = my_table.join(
     -- Standard program
     awful.key({ altkey, "Control" }, "t", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
-    awful.key({ modkey, "Control" }, "r", awesome.restart,
-              {description = "reload awesome", group = "awesome"}),
-    awful.key({ modkey, "Shift"   }, "q", awesome.quit,
-              {description = "quit awesome", group = "awesome"}),
 
     awful.key({ altkey, "Shift"   }, "l",     function () awful.tag.incmwfact( 0.05)          end,
               {description = "increase master width factor", group = "layout"}),
@@ -426,28 +421,28 @@ globalkeys = my_table.join(
     awful.key({ altkey, "Control" }, "Up",
         function ()
             awful.spawn.with_shell("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Play > /dev/null")
-            beautiful.mpd.update()
+            --beautiful.mpd.update()
         end,
         {description = "spotify play", group = "widgets"}),
     awful.key({ altkey, "Control" }, "Down",
         function ()
             awful.spawn.with_shell("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Stop > /dev/null")
-            beautiful.mpd.update()
+            --beautiful.mpd.update()
         end,
         {description = "spotify stop", group = "widgets"}),
     awful.key({ altkey, "Control" }, "Left",
         function ()
             awful.spawn.with_shell("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Previous > /dev/null")
-            beautiful.mpd.update()
+            --beautiful.mpd.update()
         end,
         {description = "spotify prev", group = "widgets"}),
     awful.key({ altkey, "Control" }, "Right",
         function ()
             awful.spawn.with_shell("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next > /dev/null")
-            beautiful.mpd.update()
+            --beautiful.mpd.update()
         end,
         {description = "spotify next", group = "widgets"}),
-
+    --[[
     awful.key({ altkey }, "0",
         function ()
             local common = { text = "MPD widget ", position = "top_middle", timeout = 2 }
@@ -461,6 +456,7 @@ globalkeys = my_table.join(
             naughty.notify(common)
         end,
         {description = "mpc on/off", group = "widgets"}),
+    ]]
 
 --[[
     -- Copy primary to clipboard (terminals to gtk)
