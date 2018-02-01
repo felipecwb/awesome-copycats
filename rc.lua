@@ -328,12 +328,36 @@ globalkeys = my_table.join(
               {description = "add new tag", group = "tag"}),
     awful.key({ modkey, "Control" }, "r", function () lain.util.rename_tag() end,
               {description = "rename tag", group = "tag"}),
-    awful.key({ modkey, "Shift" }, "Left", function () lain.util.move_tag(-1) end,
-              {description = "move tag to the left", group = "tag"}),
-    awful.key({ modkey, "Shift" }, "Right", function () lain.util.move_tag(1) end,
-              {description = "move tag to the right", group = "tag"}),
     awful.key({ modkey, "Shift" }, "d", function () lain.util.delete_tag() end,
               {description = "delete tag", group = "tag"}),
+
+    -- Move client to tag
+    awful.key({ modkey, "Shift" }, "Left",
+              function ()
+                  -- get current tag
+                  local t = client.focus and client.focus.first_tag or nil
+                  if t == nil then
+                      return
+                  end
+                  -- get previous tag (modulo 9 excluding 0 to wrap from 1 to 9)
+                  local tag = client.focus.screen.tags[(t.name - 2) % 9 + 1]
+                  awful.client.movetotag(tag)
+                  awful.tag.viewprev()
+              end,
+              {description = "move client to tag on left", group = "client"}),
+    awful.key({ modkey, "Shift" }, "Right",
+              function ()
+                  -- get current tag
+                  local t = client.focus and client.focus.first_tag or nil
+                  if t == nil then
+                      return
+                  end
+                  -- get next tag (modulo 9 excluding 0 to wrap from 9 to 1)
+                  local tag = client.focus.screen.tags[(t.name % 9) + 1]
+                  awful.client.movetotag(tag)
+                  awful.tag.viewnext()
+              end,
+              {description = "move client to tag on right", group = "client"}),
 
     -- Standard program
     awful.key({ altkey, "Control" }, "t", function () awful.spawn(terminal) end,
