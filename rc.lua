@@ -78,12 +78,12 @@ local themes = {
 local chosen_theme = themes[7]
 local modkey       = "Mod4"
 local altkey       = "Mod1"
-local scrlocker    = "xlock"
+local scrlocker    = "slimlock"
 local editor       = os.getenv("EDITOR") or "vim"
-local terminal     = "terminator"
-local browser      = "firefox-developer-edition"
+local terminal     = "xterm"
+local browser      = "firefox"
 local guieditor    = "gvim"
-local gui_editor   = "subl3"
+local gui_editor   = "code"
 
 awful.util.terminal = terminal
 awful.util.tagnames = { "1", "2", "3", "4", "5" }
@@ -232,7 +232,7 @@ globalkeys = my_table.join(
               {description = "take a screenshot", group = "hotkeys"}),
 
     -- X screen locker
-    awful.key({ modkey }, "l", function () os.execute(scrlocker) end,
+    awful.key({ altkey, "Control" }, "l", function () os.execute(scrlocker) end,
               {description = "lock screen", group = "hotkeys"}),
 
     -- Hotkeys
@@ -253,9 +253,9 @@ globalkeys = my_table.join(
               {description = "view  previous nonempty", group = "tag"}),
 
     -- Default client focus
-    awful.key({ altkey ,       }, "Tab", function () awful.client.focus.byidx( 1) end,
+    awful.key({ altkey        }, "Tab", function () awful.client.focus.byidx( 1) end,
               {description = "focus next by index", group = "client"}),
-    awful.key({ altkey, "Shit" }, "k", function () awful.client.focus.byidx(-1) end,
+    awful.key({ altkey, "Shift" }, "Tab", function () awful.client.focus.byidx(-1) end,
               {description = "focus previous by index", group = "client"}),
 
     -- By direction client focus
@@ -360,7 +360,8 @@ globalkeys = my_table.join(
               {description = "move client to tag on right", group = "client"}),
 
     -- Standard program
-    awful.key({ altkey, "Control" }, "t", function () awful.spawn(terminal) end,
+    -- awful.key({ altkey, "Control" }, "t", function () awful.spawn(terminal) end,
+    awful.key({ modkey }, "Return", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
 
     awful.key({ altkey, "Shift"   }, "l",     function () awful.tag.incmwfact( 0.05)          end,
@@ -410,24 +411,25 @@ globalkeys = my_table.join(
               {description = "-10%", group = "hotkeys"}),
 
     -- ALSA volume control
-    awful.key({ altkey }, "Up",
+    awful.key({ }, "XF86AudioRaiseVolume",
         function ()
             os.execute(string.format("amixer -q set %s 1%%+", beautiful.volume.channel))
             beautiful.volume.update()
         end,
         {description = "volume up", group = "hotkeys"}),
-    awful.key({ altkey }, "Down",
+    awful.key({ }, "XF86AudioLowerVolume",
         function ()
             os.execute(string.format("amixer -q set %s 1%%-", beautiful.volume.channel))
             beautiful.volume.update()
         end,
         {description = "volume down", group = "hotkeys"}),
-    awful.key({ altkey }, "m",
+    awful.key({ }, "XF86AudioMute",
         function ()
             os.execute(string.format("amixer -q set %s toggle", beautiful.volume.togglechannel or beautiful.volume.channel))
             beautiful.volume.update()
         end,
         {description = "toggle mute", group = "hotkeys"}),
+    --[[
     awful.key({ altkey, "Control" }, "m",
         function ()
             os.execute(string.format("amixer -q set %s 100%%", beautiful.volume.channel))
@@ -440,6 +442,7 @@ globalkeys = my_table.join(
             beautiful.volume.update()
         end,
         {description = "volume 0%", group = "hotkeys"}),
+    ]]
 
     -- MPD control
     awful.key({ altkey, "Control" }, "Up",
